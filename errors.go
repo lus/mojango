@@ -10,7 +10,7 @@ import (
 var ErrTooManyRequests = errors.New("too many requests")
 var ErrNoContent = errors.New("no content")
 
-// Returns a corresponding error to the given status code
+// errorFromCode returns a corresponding error to the given status code
 func errorFromCode(statusCode int) error {
 	switch statusCode {
 	case fasthttp.StatusTooManyRequests:

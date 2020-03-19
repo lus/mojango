@@ -9,7 +9,7 @@ const (
 	StatusRed = "red"
 )
 
-// Contains all states of the Mojang services
+// Status contains all states of the Mojang services
 type Status struct {
 	MinecraftWebsite string
 	MojangWebsite string
@@ -21,16 +21,13 @@ type Status struct {
 	API string
 }
 
-// Represents a single status
-type rawStatus struct {
-	Key string
-	Status string
-}
-
-// Parses a status object from the response of the API
+// parseStatusFromBody parses a status object from the response body of the API
 func parseStatusFromBody(body []byte) (*Status, error) {
 	// Parse multiple single states out of the response body
-	var rawStates []rawStatus
+	var rawStates []struct{
+		Key string
+		Status string
+	}
 	err := json.Unmarshal(body, &rawStates); if err != nil {
 		return nil, err
 	}

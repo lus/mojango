@@ -6,12 +6,12 @@ import (
 	"strconv"
 )
 
-// Represents an API client
+// Client represents an API client
 type Client struct {
 	client *fasthttp.Client
 }
 
-// Creates a new fasthttp client and wraps it into an API client
+// New creates a new fasthttp client and wraps it into an API client
 func New() *Client {
 	return &Client{
 		client: &fasthttp.Client{
@@ -20,7 +20,7 @@ func New() *Client {
 	}
 }
 
-// Fetches the states of all Mojang services and wraps them into a single object
+// FetchStatus fetches the states of all Mojang services and wraps them into a single object
 func (client *Client) FetchStatus() (*Status, error) {
 	// Call the Mojang status endpoint
 	code, body, err := client.client.Get(nil, "https://status.mojang.com/check"); if err != nil {
@@ -36,12 +36,12 @@ func (client *Client) FetchStatus() (*Status, error) {
 	return parseStatusFromBody(body)
 }
 
-// Fetches the current UUID of the given username
+// FetchUUID fetches the current UUID of the given username
 func (client *Client) FetchUUID(username string) (string, error) {
 	return client.FetchUUIDAtTime(username, -1)
 }
 
-// Fetches the UUID of the given username at a given timestamp
+// FetchUUIDAtTime fetches the UUID of the given username at a given timestamp
 func (client *Client) FetchUUIDAtTime(username string, timestamp int64) (string, error) {
 	// Call the Mojang profile endpoint
 	atExtension := ""
@@ -67,7 +67,7 @@ func (client *Client) FetchUUIDAtTime(username string, timestamp int64) (string,
 	return result["id"].(string), nil
 }
 
-// Fetches the UUIDs of the given usernames
+// FetchMultipleUUIDs fetches the UUIDs of the given usernames
 func (client *Client) FetchMultipleUUIDs(usernames []string) (map[string]string, error) {
 	// Define the request object
 	request := fasthttp.AcquireRequest()
@@ -113,7 +113,7 @@ func (client *Client) FetchMultipleUUIDs(usernames []string) (map[string]string,
 	return result, nil
 }
 
-// Fetches all names of the given UUID and their corresponding changing timestamps
+// FetchNameHistory fetches all names of the given UUID and their corresponding changing timestamps
 func (client *Client) FetchNameHistory(uuid string) ([]NameHistoryEntry, error) {
 	// Call the Mojang profile endpoint
 	code, body, err := client.client.Get(nil, "https://api.mojang.com/user/profiles/" + uuid + "/names"); if err != nil {
@@ -133,7 +133,7 @@ func (client *Client) FetchNameHistory(uuid string) ([]NameHistoryEntry, error) 
 	return entries, nil
 }
 
-// Fetches the profile of the given UUID
+// FetchProfile fetches the profile of the given UUID
 func (client *Client) FetchProfile(uuid string, unsigned bool) (*Profile, error) {
 	// Call the Mojang profile endpoint
 	code, body, err := client.client.Get(nil, "https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=" + strconv.FormatBool(unsigned)); if err != nil {
