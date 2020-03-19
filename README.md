@@ -8,7 +8,7 @@ go get -u github.com/Lukaesebrot/mojango
 ```
 
 ## Usage
-Before you can use the wrapper, you need to create a Client:
+Before you can use the wrapper, you need to create a client:
 ```go
 func main() {
     // Create a new mojango client
