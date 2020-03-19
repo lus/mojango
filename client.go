@@ -2,12 +2,31 @@ package mojango
 
 import "github.com/valyala/fasthttp"
 
+// Represents an API client
 type Client struct {
-	// TODO: Add client fields
+	client *fasthttp.Client
 }
 
-func (client *Client) FetchStatus() {
-	// TODO: Add server status fetching and parsing
+// Creates a new fasthttp client and wraps it into an API client
+func New() *Client {
+	return &Client{
+		client: &fasthttp.Client{
+			Name: "mojango",
+		},
+	}
+}
+
+// Fetches the states of all Mojang services and wraps them into a single object
+func (client *Client) FetchStatus() (*Status, error) {
+	// Call the Mojang status endpoint
+	_, body, err := client.client.Get(nil, "https://status.mojang.com/check"); if err != nil {
+		return nil, err
+	}
+
+	// TODO: Implement error handling
+
+	// Parse the result into a status object
+	return parseStatusFromBody(body)
 }
 
 func (client *Client) FetchUUID(username string) {
