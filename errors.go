@@ -7,8 +7,8 @@ import (
 )
 
 // Define possible known errors
-var ErrTooManyRequests = errors.New("too many requests")
-var ErrNoContent = errors.New("no content")
+var ErrTooManyRequests = errors.New("too many Mojang API requests")
+var ErrNoContent = errors.New("no Mojang API result")
 
 // errorFromCode returns a corresponding error to the given status code
 func errorFromCode(statusCode int) error {
