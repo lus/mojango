@@ -1,6 +1,10 @@
 package mojango
 
-import "github.com/valyala/fasthttp"
+import (
+	"encoding/json"
+	"github.com/valyala/fasthttp"
+	"strconv"
+)
 
 // Represents an API client
 type Client struct {
@@ -32,12 +36,35 @@ func (client *Client) FetchStatus() (*Status, error) {
 	return parseStatusFromBody(body)
 }
 
-func (client *Client) FetchUUID(username string) {
-	// TODO: Add UUID fetching
+// Fetches the current UUID of the given username
+func (client *Client) FetchUUID(username string) (string, error) {
+	return client.FetchUUIDAtTime(username, -1)
 }
 
-func (client *Client) FetchUUIDAtTime(username string, timestamp int64) {
-	// TODO: Add UUID at timestamp fetching
+// Fetches the UUID of the given username at a given timestamp
+func (client *Client) FetchUUIDAtTime(username string, timestamp int64) (string, error) {
+	// Call the Mojang profile endpoint
+	atExtension := ""
+	if timestamp >= 0 {
+		atExtension = "?at=" + strconv.FormatInt(timestamp, 10)
+	}
+	code, body, err := client.client.Get(nil, "https://api.mojang.com/users/profiles/minecraft/" + username + atExtension); if err != nil {
+		return "", err
+	}
+
+	// Handle possible errors
+	if code != fasthttp.StatusOK {
+		return "", errorFromCode(code)
+	}
+
+	// Parse the result into a map containing the profile data
+	var result map[string]interface{}
+	err = json.Unmarshal(body, &result); if err != nil {
+		return "", err
+	}
+
+	// Return the UUID of the requested profile
+	return result["id"].(string), nil
 }
 
 func (client *Client) FetchMultipleUUIDs(usernames []string) {
