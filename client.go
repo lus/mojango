@@ -19,11 +19,14 @@ func New() *Client {
 // Fetches the states of all Mojang services and wraps them into a single object
 func (client *Client) FetchStatus() (*Status, error) {
 	// Call the Mojang status endpoint
-	_, body, err := client.client.Get(nil, "https://status.mojang.com/check"); if err != nil {
+	code, body, err := client.client.Get(nil, "https://status.mojang.com/check"); if err != nil {
 		return nil, err
 	}
 
-	// TODO: Implement error handling
+	// Handle possible errors
+	if code != fasthttp.StatusOK {
+		return nil, errorFromCode(code)
+	}
 
 	// Parse the result into a status object
 	return parseStatusFromBody(body)

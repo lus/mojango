@@ -4,9 +4,9 @@ import "encoding/json"
 
 // These constants represent the possible states of the Mojang services
 const (
-	STATUS_GREEN = "green"
-	STATUS_YELLOW = "yellow"
-	STATUS_RED = "red"
+	StatusGreen = "green"
+	StatusYellow = "yellow"
+	StatusRed = "red"
 )
 
 // Contains all states of the Mojang services
