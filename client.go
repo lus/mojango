@@ -133,6 +133,22 @@ func (client *Client) FetchNameHistory(uuid string) ([]NameHistoryEntry, error) 
 	return entries, nil
 }
 
-func (client *Client) FetchProfile(uuid string) {
-	// TODO: Add profile fetching
+// Fetches the profile of the given UUID
+func (client *Client) FetchProfile(uuid string, unsigned bool) (*Profile, error) {
+	// Call the Mojang profile endpoint
+	code, body, err := client.client.Get(nil, "https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=" + strconv.FormatBool(unsigned)); if err != nil {
+		return nil, err
+	}
+
+	// Handle possible errors
+	if code != fasthttp.StatusOK {
+		return nil, errorFromCode(code)
+	}
+
+	// Parse the response body into a profile and return it
+	profile := new(Profile)
+	err = json.Unmarshal(body, profile); if err != nil {
+		return nil, err
+	}
+	return profile, nil
 }
