@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/valyala/fasthttp"
 	"strconv"
-	"strings"
 )
 
 // Represents an API client
@@ -68,6 +67,7 @@ func (client *Client) FetchUUIDAtTime(username string, timestamp int64) (string,
 	return result["id"].(string), nil
 }
 
+// Fetches the UUIDs of the given usernames
 func (client *Client) FetchMultipleUUIDs(usernames []string) (map[string]string, error) {
 	// Define the request object
 	request := fasthttp.AcquireRequest()
@@ -113,8 +113,24 @@ func (client *Client) FetchMultipleUUIDs(usernames []string) (map[string]string,
 	return result, nil
 }
 
-func (client *Client) FetchNameHistory(uuid string) {
-	// TODO: Add name history fetching
+// Fetches all names of the given UUID and their corresponding changing timestamps
+func (client *Client) FetchNameHistory(uuid string) ([]NameHistoryEntry, error) {
+	// Call the Mojang profile endpoint
+	code, body, err := client.client.Get(nil, "https://api.mojang.com/user/profiles/" + uuid + "/names"); if err != nil {
+		return nil, err
+	}
+
+	// Handle possible errors
+	if code != fasthttp.StatusOK {
+		return nil, errorFromCode(code)
+	}
+
+	// Parse the response body into a list of name history entries and return it
+	var entries []NameHistoryEntry
+	err = json.Unmarshal(body, &entries); if err != nil {
+		return nil, err
+	}
+	return entries, nil
 }
 
 func (client *Client) FetchProfile(uuid string) {
