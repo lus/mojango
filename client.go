@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/valyala/fasthttp"
 	"strconv"
+	"strings"
 )
 
 // Represents an API client
@@ -32,7 +33,7 @@ func (client *Client) FetchStatus() (*Status, error) {
 		return nil, errorFromCode(code)
 	}
 
-	// Parse the result into a status object
+	// Parse the result into a status object and return it
 	return parseStatusFromBody(body)
 }
 
@@ -67,8 +68,49 @@ func (client *Client) FetchUUIDAtTime(username string, timestamp int64) (string,
 	return result["id"].(string), nil
 }
 
-func (client *Client) FetchMultipleUUIDs(usernames []string) {
-	// TODO: Add multiple UUID fetching
+func (client *Client) FetchMultipleUUIDs(usernames []string) (map[string]string, error) {
+	// Define the request object
+	request := fasthttp.AcquireRequest()
+	defer fasthttp.ReleaseRequest(request)
+	request.SetRequestURI("https://api.mojang.com/profiles/minecraft")
+	reqBody, err := json.Marshal(usernames); if err != nil {
+		return nil, err
+	}
+	request.SetBody(reqBody)
+
+	// Define the response object
+	response := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseResponse(response)
+
+	// Call the Mojang profile endpoint
+	err = client.client.Do(request, response); if err != nil {
+		return nil, err
+	}
+
+	// Define the important response values
+	code := response.StatusCode()
+	body := response.Body()
+
+	// Handle possible errors
+	if code != fasthttp.StatusOK {
+		return nil, errorFromCode(code)
+	}
+
+	// Parse the response body into a list of results
+	var rawResults []struct{
+		UUID string `json:"id"`
+		Name string `json:"name"`
+	}
+	err = json.Unmarshal(body, &rawResults); if err != nil {
+		return nil, err
+	}
+
+	// Parse the list of results into a map and return it
+	result := make(map[string]string)
+	for _, rawResult := range rawResults {
+		result[rawResult.Name] = rawResult.UUID
+	}
+	return result, nil
 }
 
 func (client *Client) FetchNameHistory(uuid string) {
