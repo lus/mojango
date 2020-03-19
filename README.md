@@ -16,7 +16,7 @@ func main() {
 }
 ```
 
-Using this client, you now may use the wrapper's functions as you like: 
+Using this client, you can now use the wrapper's functions as you like: 
 ```go
 func main() {
     // Create a new mojango client
