@@ -8,13 +8,13 @@ import (
 
 // Client represents an API client
 type Client struct {
-	client *fasthttp.Client
+	*fasthttp.Client
 }
 
 // New creates a new fasthttp client and wraps it into an API client
 func New() *Client {
 	return &Client{
-		client: &fasthttp.Client{
+		&fasthttp.Client{
 			Name: "mojango",
 		},
 	}
@@ -23,7 +23,7 @@ func New() *Client {
 // FetchStatus fetches the states of all Mojang services and wraps them into a single object
 func (client *Client) FetchStatus() (*Status, error) {
 	// Call the Mojang status endpoint
-	code, body, err := client.client.Get(nil, "https://status.mojang.com/check"); if err != nil {
+	code, body, err := client.Get(nil, "https://status.mojang.com/check"); if err != nil {
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func (client *Client) FetchUUIDAtTime(username string, timestamp int64) (string,
 	if timestamp >= 0 {
 		atExtension = "?at=" + strconv.FormatInt(timestamp, 10)
 	}
-	code, body, err := client.client.Get(nil, "https://api.mojang.com/users/profiles/minecraft/" + username + atExtension); if err != nil {
+	code, body, err := client.Get(nil, "https://api.mojang.com/users/profiles/minecraft/" + username + atExtension); if err != nil {
 		return "", err
 	}
 
@@ -83,7 +83,7 @@ func (client *Client) FetchMultipleUUIDs(usernames []string) (map[string]string,
 	defer fasthttp.ReleaseResponse(response)
 
 	// Call the Mojang profile endpoint
-	err = client.client.Do(request, response); if err != nil {
+	err = client.Do(request, response); if err != nil {
 		return nil, err
 	}
 
@@ -116,7 +116,7 @@ func (client *Client) FetchMultipleUUIDs(usernames []string) (map[string]string,
 // FetchNameHistory fetches all names of the given UUID and their corresponding changing timestamps
 func (client *Client) FetchNameHistory(uuid string) ([]NameHistoryEntry, error) {
 	// Call the Mojang profile endpoint
-	code, body, err := client.client.Get(nil, "https://api.mojang.com/user/profiles/" + uuid + "/names"); if err != nil {
+	code, body, err := client.Get(nil, "https://api.mojang.com/user/profiles/" + uuid + "/names"); if err != nil {
 		return nil, err
 	}
 
@@ -136,7 +136,7 @@ func (client *Client) FetchNameHistory(uuid string) ([]NameHistoryEntry, error) 
 // FetchProfile fetches the profile of the given UUID
 func (client *Client) FetchProfile(uuid string, unsigned bool) (*Profile, error) {
 	// Call the Mojang profile endpoint
-	code, body, err := client.client.Get(nil, "https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=" + strconv.FormatBool(unsigned)); if err != nil {
+	code, body, err := client.Get(nil, "https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=" + strconv.FormatBool(unsigned)); if err != nil {
 		return nil, err
 	}
 
