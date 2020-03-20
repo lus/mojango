@@ -1,4 +1,5 @@
-[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/Lukaesebrot/mojango)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/Lukaesebrot/mojango)
+![Go](https://github.com/Lukaesebrot/mojango/workflows/Go/badge.svg)
 
 # mojango
 A modern and fast Golang wrapper around the Mojang API
