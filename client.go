@@ -6,34 +6,24 @@ import (
 	"strconv"
 )
 
-// Mojango represents an API client
-type Mojango interface {
-	FetchStatus() (*Status, error)
-	FetchUUID(username string) (string, error)
-	FetchUUIDAtTime(username string, timestamp int64) (string, error)
-	FetchMultipleUUIDs(usernames []string) (map[string]string, error)
-	FetchNameHistory(uuid string) ([]NameHistoryEntry, error)
-	FetchProfile(uuid string, unsigned bool) (*Profile, error)
-}
-
-// client represents a internal wrapper around the fasthttp client
-type client struct {
-	*fasthttp.Client
+// Client represents an API client
+type Client struct {
+	http *fasthttp.Client
 }
 
 // New creates a new fasthttp client and wraps it into an API client
-func New() Mojango {
-	return &client{
-		&fasthttp.Client{
+func New() *Client {
+	return &Client{
+		http: &fasthttp.Client{
 			Name: "mojango",
 		},
 	}
 }
 
 // FetchStatus fetches the states of all Mojang services and wraps them into a single object
-func (client *client) FetchStatus() (*Status, error) {
+func (client *Client) FetchStatus() (*Status, error) {
 	// Call the Mojang status endpoint
-	code, body, err := client.Get(nil, "https://status.mojang.com/check"); if err != nil {
+	code, body, err := client.http.Get(nil, "https://status.mojang.com/check"); if err != nil {
 		return nil, err
 	}
 
@@ -47,18 +37,18 @@ func (client *client) FetchStatus() (*Status, error) {
 }
 
 // FetchUUID fetches the current UUID of the given username
-func (client *client) FetchUUID(username string) (string, error) {
+func (client *Client) FetchUUID(username string) (string, error) {
 	return client.FetchUUIDAtTime(username, -1)
 }
 
 // FetchUUIDAtTime fetches the UUID of the given username at a given timestamp
-func (client *client) FetchUUIDAtTime(username string, timestamp int64) (string, error) {
+func (client *Client) FetchUUIDAtTime(username string, timestamp int64) (string, error) {
 	// Call the Mojang profile endpoint
 	atExtension := ""
 	if timestamp >= 0 {
 		atExtension = "?at=" + strconv.FormatInt(timestamp, 10)
 	}
-	code, body, err := client.Get(nil, "https://api.mojang.com/users/profiles/minecraft/" + username + atExtension); if err != nil {
+	code, body, err := client.http.Get(nil, "https://api.mojang.com/users/profiles/minecraft/" + username + atExtension); if err != nil {
 		return "", err
 	}
 
@@ -78,7 +68,7 @@ func (client *client) FetchUUIDAtTime(username string, timestamp int64) (string,
 }
 
 // FetchMultipleUUIDs fetches the UUIDs of the given usernames
-func (client *client) FetchMultipleUUIDs(usernames []string) (map[string]string, error) {
+func (client *Client) FetchMultipleUUIDs(usernames []string) (map[string]string, error) {
 	// Define the request object
 	request := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(request)
@@ -93,7 +83,7 @@ func (client *client) FetchMultipleUUIDs(usernames []string) (map[string]string,
 	defer fasthttp.ReleaseResponse(response)
 
 	// Call the Mojang profile endpoint
-	err = client.Do(request, response); if err != nil {
+	err = client.http.Do(request, response); if err != nil {
 		return nil, err
 	}
 
@@ -124,9 +114,9 @@ func (client *client) FetchMultipleUUIDs(usernames []string) (map[string]string,
 }
 
 // FetchNameHistory fetches all names of the given UUID and their corresponding changing timestamps
-func (client *client) FetchNameHistory(uuid string) ([]NameHistoryEntry, error) {
+func (client *Client) FetchNameHistory(uuid string) ([]NameHistoryEntry, error) {
 	// Call the Mojang profile endpoint
-	code, body, err := client.Get(nil, "https://api.mojang.com/user/profiles/" + uuid + "/names"); if err != nil {
+	code, body, err := client.http.Get(nil, "https://api.mojang.com/user/profiles/" + uuid + "/names"); if err != nil {
 		return nil, err
 	}
 
@@ -144,9 +134,9 @@ func (client *client) FetchNameHistory(uuid string) ([]NameHistoryEntry, error) 
 }
 
 // FetchProfile fetches the profile of the given UUID
-func (client *client) FetchProfile(uuid string, unsigned bool) (*Profile, error) {
+func (client *Client) FetchProfile(uuid string, unsigned bool) (*Profile, error) {
 	// Call the Mojang profile endpoint
-	code, body, err := client.Get(nil, "https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=" + strconv.FormatBool(unsigned)); if err != nil {
+	code, body, err := client.http.Get(nil, "https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=" + strconv.FormatBool(unsigned)); if err != nil {
 		return nil, err
 	}
 
