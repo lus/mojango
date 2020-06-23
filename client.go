@@ -77,6 +77,7 @@ func (client *Client) FetchMultipleUUIDs(usernames []string) (map[string]string,
 	request := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(request)
 	request.SetRequestURI(fmt.Sprintf("%s/profiles/minecraft", uriApi))
+	request.Header.SetMethod("POST")
 	reqBody, err := json.Marshal(usernames)
 	if err != nil {
 		return nil, err
